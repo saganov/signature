@@ -1,2 +1,15 @@
 .signature {border: 3px solid red;}
 .signature.signed {border-color: green;}
+
+.popup_signature {
+   border: 2px solid blue;
+   border-radius: 3px;
+   position: fixed;
+   top: 0;
+   left: 0;
+   background-color: gainsboro;
+   margin:30px;
+   padding:5px;
+   padding-bottom:30px;}
+
+.popup_signature canvas {background-color: #fff;}

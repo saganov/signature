@@ -88,28 +88,60 @@
          return ($(el).data('signature').lines && !!$(el).data('signature').lines.length);
      };
 
+
+
      var showPopup = function(e)
      {
-         var container = $('<div />');
+         var container = $('<div />', {'class': 'popup_signature'})
+             .css('width',  def.canvas.width+'px')
+             .css('height', def.canvas.height+'px');
          var canvas = $('<canvas />')
              .attr('width',  def.canvas.width)
              .attr('height', def.canvas.height);
-         var button = {
-             ok:     $('<input type="button" value="OK" />'),
-             cancel: $('<input type="button" value="Cancel" />'),
-             clear:  $('<input type="button" value="Clear " />')
-         };
-
-         $(container).append(canvas).append(button.ok).append(button.cancel).append(button.clear);
-         $('body').append(container);
 
          //grab the context from your destination canvas
          var ctx = canvas[0].getContext('2d');
          //call its drawImage() function passing it the source canvas directly
          ctx.drawImage(e.target, 0, 0);
+         
+         // TODO: There has to be the way to reload this methods
+         var callback = {
+             ok: function(e){
+                 console.log('The signature is signed');
+                 // TODO: Store the new lines into appropriatted signature
+                 //       Must decide if there should be:
+                 //         - adding additional lines to existed ones
+                 //         - replacing existed lines by new ones
+                 //         - removing all old lines (clean signature)
+                 //       And refresh it
+                 hidePopup();
+             },
+             cancel: function(e){
+                 console.log('The signature was closed');
+                 hidePopup();
+             },
+             clear: function(e){
+                 console.log('The signature was cleared');
+                 ctx.clearRect(0, 0, canvas[0].width, canvas[0].height);
+             }
+         };
+             
+         var button = {
+             ok:     $('<input type="button" value="OK" />').click(callback.ok),
+             cancel: $('<input type="button" value="Cancel" />').click(callback.cancel),
+             clear:  $('<input type="button" value="Clear " />').click(callback.clear)
+         };
+
+         $(container).append(canvas).append(button.ok).append(button.cancel).append(button.clear);
+         $('body').append(container);
+
 
      };
      
+     var hidePopup = function(e)
+     {
+         $('div.popup_signature').remove();
+     };
 
      var methods = {
          init: function(options)
