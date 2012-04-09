@@ -1,6 +1,6 @@
 (function($){
 
-     var def = {canvas: {width: 200, height: 100, lineWidth: 1, lineCap: 'round', fillStyle: '#fff', strokeStyle: '#444'},
+     var def = {canvas: {width: 400, height: 200, scale: 2, lineWidth: 1, lineCap: 'round', fillStyle: '#fff', strokeStyle: '#444'},
                 lines:[]};
 
      var _populate = function(el, lines)
@@ -88,6 +88,29 @@
          return ($(el).data('signature').lines && !!$(el).data('signature').lines.length);
      };
 
+     var showPopup = function(e)
+     {
+         var container = $('<div />');
+         var canvas = $('<canvas />')
+             .attr('width',  def.canvas.width)
+             .attr('height', def.canvas.height);
+         var button = {
+             ok:     $('<input type="button" value="OK" />'),
+             cancel: $('<input type="button" value="Cancel" />'),
+             clear:  $('<input type="button" value="Clear " />')
+         };
+
+         $(container).append(canvas).append(button.ok).append(button.cancel).append(button.clear);
+         $('body').append(container);
+
+         //grab the context from your destination canvas
+         var ctx = canvas[0].getContext('2d');
+         //call its drawImage() function passing it the source canvas directly
+         ctx.drawImage(e.target, 0, 0);
+
+     };
+     
+
      var methods = {
          init: function(options)
          {
@@ -97,13 +120,16 @@
                            var $this = $(this),
                            //data = $this.data('signature');
                            options = $.extend({}, def, $this.data('signature'), options);
-                           var canvas = $('<canvas />',
-                                          {width:  options.canvas.width,
-                                           height: options.canvas.height});
+                           var size = {width: options.canvas.width  / options.canvas.scale,
+                                      height: options.canvas.height / options.canvas.scale};
+                           var canvas = $('<canvas />', {style:  'width:'+size.width+'px;height:'+size.height+'px;'})
+                               .attr('width',  options.canvas.width)
+                               .attr('height', options.canvas.height);
                            $this.append(canvas)
-                               .css('width',  options.canvas.width  +'px')
-                               .css('height', options.canvas.height/2 +'px')
-                               .addClass('signature');
+                               .css('width',  size.width+'px')
+                               .css('height', size.height/2 +'px')
+                               .addClass('signature')
+                               .click(showPopup);
 
                            var context         = canvas[0].getContext('2d');
                            context.lineWidth   = options.canvas.lineWidth;//1
