@@ -6,6 +6,7 @@
     var context = function(canvas, options)
     {
         var lines               = [],
+            blured              = false,
             context             = canvas.getContext('2d');
             context.lineWidth   = options.lineWidth   || 1;
             context.lineCap     = options.lineCap     || "round";
@@ -16,7 +17,7 @@
             
             populate: function(_lines)
             {
-                if(!this.isSignatureEqual(lines, _lines)){
+                if(!this._isSignatureEqual(lines, _lines)){
                     //signature blured
                 }
                 
@@ -42,6 +43,7 @@
             {
                 lines = [];
                 context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
+                blured = true;
                 return true;
             },
             
@@ -60,7 +62,40 @@
                 this._linesPush(p);
                 context.lineTo(p.x, p.y);
                 context.stroke();
+                blured = true;
                 return true;
+            },
+
+            close: function()
+            {
+                context.stroke();
+                context.closePath();
+            },
+
+            getLines: function()
+            {
+                return lines;
+            },
+
+            isSigned: function()
+            {
+                return (lines && !!lines.length);
+            },
+
+            isBlured: function()
+            {
+                return blured;
+            },
+
+            draw: function(img)
+            {
+                context.drawImage(img, 0, 0);
+            },
+
+            _isSignatureEqual: function(first, second)
+            {
+                if (first && first.length != second.length){return false;}
+                return (JSON.stringify(first) == JSON.stringify(second));
             },
 
             _linesPush: function(p)
@@ -70,28 +105,6 @@
                 } else {
                     lines.push([]);
                 }
-            },
-
-            close: function()
-            {
-                context.stroke();
-                context.closePath();
-            },
-
-            isSignatureEqual: function(first, second)
-            {
-                if (first && first.length != second.length){return false;}
-                return (JSON.stringify(first) == JSON.stringify(second));
-            },
-            
-            isSigned: function()
-            {
-                return (lines && !!lines.length);
-            },
-
-            draw: function(img)
-            {
-                context.drawImage(img, 0, 0);
             }
         };
     };
