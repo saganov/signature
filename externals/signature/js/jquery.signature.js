@@ -96,55 +96,70 @@
         };
     };
    
-    var showPopup = function(e)
-    {
-        var container = $('<div />', {'class': 'popup_signature'})
-            .css('width',  def.canvas.width+'px')
-            .css('height', def.canvas.height+'px');
-        var canvas = $('<canvas />')
-            .attr('width',  def.canvas.width)
-            .attr('height', def.canvas.height);
-        
-        //grab the context from your destination canvas
-        var ctx = context(canvas[0], def.canvas);
-        //call its drawImage() function passing it the source canvas directly
-        ctx.draw(e.target);
+    var popup = {
 
-        var hidePopup = function(e)
+        show: function(e)
+        {
+            var container = $('<div />', {'class': 'popup_signature'})
+                .css('width',  def.canvas.width+'px')
+                .css('height', def.canvas.height+'px');
+            var canvas = $('<canvas />')
+                .attr('width',  def.canvas.width)
+                .attr('height', def.canvas.height);
+            
+            var signature = e.target.parentNode;
+            //grab the context from your destination canvas
+            var ctx = context(canvas[0], def.canvas);
+            //call its drawImage() function passing it the source canvas directly
+            ctx.draw(e.target);
+                       
+            // TODO: There has to be the way to reload this methods
+            var callback = {
+                ok: function(e){
+                    console.log('The signature is signed');
+                    // TODO: Store the new lines into appropriatted signature
+                    //       Must decide if there should be:
+                    //         - adding additional lines to existed ones
+                    //         - replacing existed lines by new ones
+                    //         - removing all old lines (clean signature)
+                    //       And refresh it
+                    if(ctx.isBlured()){
+                        $(signature).data('signature').context.populate(ctx.getLines());
+                    }
+
+                    // TODO: Think, how to replace it into event handler
+                    if($(signature).data('signature').context.isSigned()){
+                        $(signature).addClass('signed');
+                    } else {
+                        $(signature).removeClass('signed');
+                    }                        
+
+                    popup.hide(e);
+                },
+                cancel: function(e){
+                    console.log('The signature was closed');
+                    popup.hide(e);
+                },
+                clear: function(e){
+                    console.log('The signature was cleared');
+                    ctx.clear();
+                }
+            };
+            
+            var button = {
+                ok:     $('<input type="button" value="OK" />').click(callback.ok),
+                cancel: $('<input type="button" value="Cancel" />').click(callback.cancel),
+                clear:  $('<input type="button" value="Clear " />').click(callback.clear)
+            };
+            
+            $(container).append(canvas).append(button.ok).append(button.cancel).append(button.clear);
+            $('body').append(container);
+        },
+
+        hide: function(e)
         {
             $('div.popup_signature').remove();
-        };
-        
-        // TODO: There has to be the way to reload this methods
-        var callback = {
-            ok: function(e){
-                console.log('The signature is signed');
-                // TODO: Store the new lines into appropriatted signature
-                //       Must decide if there should be:
-                //         - adding additional lines to existed ones
-                //         - replacing existed lines by new ones
-                //         - removing all old lines (clean signature)
-                //       And refresh it
-                hidePopup();
-            },
-            cancel: function(e){
-                console.log('The signature was closed');
-                hidePopup();
-            },
-            clear: function(e){
-                console.log('The signature was cleared');
-                ctx.clear();
-            }
-        };
-        
-        var button = {
-            ok:     $('<input type="button" value="OK" />').click(callback.ok),
-            cancel: $('<input type="button" value="Cancel" />').click(callback.cancel),
-            clear:  $('<input type="button" value="Clear " />').click(callback.clear)
-        };
-        
-        $(container).append(canvas).append(button.ok).append(button.cancel).append(button.clear);
-        $('body').append(container);
+        }
     };
     
     
@@ -166,7 +181,7 @@
                         .css('width',  size.width+'px')
                         .css('height', size.height/2 +'px')
                         .addClass('signature')
-                        .click(showPopup);
+                        .click(popup.show);
                     
                     options.context = context(canvas[0], options.canvas);
                     options.context.populate(options.lines);
