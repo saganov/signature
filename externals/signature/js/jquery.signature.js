@@ -110,6 +110,113 @@
     };
    
     var popup = {
+        
+        canvas: undefined,
+        signature: undefined,
+        
+        getXY: function(e)
+        {
+            var x, y;
+            var offsety = popup.canvas.offsetTop || 0;
+            var offsetx = popup.canvas.offsetLeft || 0;
+
+            if (e.changedTouches && e.changedTouches[0])
+            {
+                x = e.changedTouches[0].pageX;
+                y = e.changedTouches[0].pageY;
+            }
+            else if (e.layerX || 0 == e.layerX)
+            {
+                x = e.layerX;
+                y = e.layerY;
+            }
+            else if (e.offsetX || 0 == e.offsetX)
+            {
+                x = e.offsetX;
+                y = e.offsetY;
+            }
+            console.log(popup.canvas.offsetTop);
+            return {
+                x: x - offsetx,
+                y: y - offsety
+            };
+        },
+
+        events: {
+            startCapture: function(e)
+            {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                document.body.theSig = this;
+                
+                //IJS.addEvent('move', signature.getCanvas(), moveEvent);
+                //IJS.addEvent('out',   signature.getCanvas(), handleOut);
+                //IJS.addEvent('stop',  signature.getCanvas(), stopCapture);
+                popup.canvas.addEventListener('mousemove', popup.events.moveEvent, false);
+                popup.canvas.addEventListener('touchmove', popup.events.moveEvent, false);
+                popup.canvas.addEventListener('mouseup',   popup.events.stopCapture,   false);
+                popup.canvas.addEventListener('touchend',  popup.events.stopCapture,   false);
+
+                document.body.addEventListener('mouseup',  popup.events.stopCapture, false);
+                document.body.addEventListener('touchend', popup.events.stopCapture, false);
+
+                var p = popup.getXY(e);
+                popup.signature.start(p);
+                
+                return true;
+            },
+        
+            stopCapture: function(e)
+            {
+                popup.signature.close();
+                //IJS.removeEvent('move', signature.getCanvas(), moveEvent);
+                //IJS.removeEvent('out',  signature.getCanvas(), handleOut);
+                //IJS.removeEvent('stop', signature.getCanvas(), stopCapture);
+                popup.canvas.removeEventListener('mousemove', popup.events.moveEvent, false);
+                popup.canvas.removeEventListener('touchmove', popup.events.moveEvent, false);
+                popup.canvas.removeEventListener('mouseup',   popup.events.stopCapture,   false);
+                popup.canvas.removeEventListener('touchend',  popup.events.stopCapture,   false);
+            
+                document.body.removeEventListener('mouseup',  popup.events.stopCapture, false);
+                document.body.removeEventListener('touchend', popup.events.stopCapture, false);
+            },
+        
+            moveEvent: function(e)
+            {
+                e.preventDefault();
+                e.stopPropagation();
+                e.cancelBubble = true;
+            
+                var p = popup.getXY(e);
+                
+                if (typeof(document.body.theSig) == 'boolean')
+                {
+                    popup.events.stopCapture(e);
+                    return true;
+                }
+                
+                popup.signature.addPoint(p);
+                return true;
+            },
+        
+            handleOut: function(e)
+            {
+                e.preventDefault();
+                
+                //save current line and empty stack
+                if (document.body.theSig)
+                {
+                    var p = popup.getXY(e);
+                    //signature.addPoint(p);
+                    popup.signature.start();
+                };
+                
+                //IJS.addEvent('stop', document.body, function(e){this.theSig = false;});
+                document.body.addEventListener('mouseup',  function(e){this.theSig = false;});
+                document.body.addEventListener('touchend', function(e){this.theSig = false;});
+            }
+        },
 
         show: function(e)
         {
@@ -119,13 +226,21 @@
             var canvas = $('<canvas />')
                 .attr('width',  def.canvas.width)
                 .attr('height', def.canvas.height);
-            
+
+           
             var signature = e.target.parentNode;
             //grab the context from your destination canvas
             var ctx = context(canvas[0], def.canvas);
             //call its drawImage() function passing it the source canvas directly
             ctx.draw(e.target);
-                       
+
+            popup.canvas    = canvas[0];
+            popup.signature = $(signature).data('signature').context;
+
+            //IJS.addEvent('start', signature.getCanvas(), startCapture);
+            popup.canvas.addEventListener('mousedown',  popup.events.startCapture, false);
+            popup.canvas.addEventListener('touchstart', popup.events.startCapture, false);
+
             // TODO: There has to be the way to reload this methods
             var callback = {
                 ok: function(e){
