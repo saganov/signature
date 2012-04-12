@@ -3,7 +3,7 @@
     var def = {canvas: {width: 400, height: 200, scale: 2, lineWidth: 1, lineCap: 'round', fillStyle: '#fff', strokeStyle: '#444'},
                lines:[]};
     
-    var signature_context = function(canvas, options)
+    var signature_context = function(canvas, options, callback)
     {
         var lines               = [],
             blured              = false,
@@ -37,6 +37,7 @@
                 }
                 
                 lines = _lines;                
+                if(typeof callback == 'function') callback(this);
             },
             
             clear: function()
@@ -141,13 +142,6 @@
                     if(ctx.isBlured()){
                         signature.populate(ctx.getLines());
                     }
-
-                    // TODO: Think, how to replace it into event handler
-                    if(signature.isSigned()){
-                        $(e.target.parentNode).addClass('signed');
-                    } else {
-                        $(e.target.parentNode).removeClass('signed');
-                    }                        
 
                     popup.hide(e);
                 },
@@ -307,14 +301,18 @@
                         .addClass('signature')
                         .click(popup.show);
                     
-                    options.context = signature_context(canvas[0], options.canvas);
+                    options.context = signature_context(canvas[0],
+                                                        options.canvas,
+                                                        function(context){
+                                                            if(context.isSigned()){
+                                                                $this.addClass('signed');
+                                                            } else {
+                                                                $this.removeClass('signed');
+                                                            }
+                                                        });
                     options.context.populate(options.lines);
-                    
-                    if(options.context.isSigned()){
-                        $this.addClass('signed');
-                    } else {
-                        $this.removeClass('signed');
-                    }
+                          
+
                     
                     $this.data('signature', options);
                     
