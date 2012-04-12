@@ -6,7 +6,7 @@
     var signature_context = function(canvas, options, callback)
     {
         var lines               = [],
-            blured              = false,
+            blurred             = false,
             cleared             = false,
             context             = canvas.getContext('2d');
             context.lineWidth   = options.lineWidth   || 1;
@@ -19,7 +19,7 @@
             populate: function(_lines)
             {
                 if(!this._isSignatureEqual(lines, _lines)){
-                    //signature blured
+                    //signature blurred
                 }
                 
                 this.clear();
@@ -51,7 +51,7 @@
                 }
                 lines = _lines;
                 cleared = false;
-                blured  = false;
+                blurred  = false;
                 if(typeof callback == 'function') callback(this);
             },
             
@@ -59,7 +59,7 @@
             {
                 lines = [];
                 context.clearRect(0, 0, canvas.width, canvas.height);
-                blured = true;
+                blurred = true;
                 cleared = true;
                 return true;
             },
@@ -79,7 +79,7 @@
                 this._linesPush(p);
                 context.lineTo(p.x, p.y);
                 context.stroke();
-                blured = true;
+                blurred = true;
                 return true;
             },
 
@@ -99,9 +99,9 @@
                 return (lines && !!lines.length);
             },
 
-            isBlured: function()
+            isBlurred: function()
             {
-                return blured;
+                return blurred;
             },
 
             isCleared: function()
@@ -111,9 +111,9 @@
 
             getStatus: function()
             {
-                if(blured && cleared) return 'new';
-                else if(!blured && cleared) return 'clean';
-                else if(blured && !cleared) return 'updated';
+                if(blurred && cleared) return 'new';
+                else if(!blurred && cleared) return 'clean';
+                else if(blurred && !cleared) return 'updated';
                 else return '';
             },
 
