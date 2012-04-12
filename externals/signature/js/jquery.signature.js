@@ -7,6 +7,7 @@
     {
         var lines               = [],
             blured              = false,
+            cleared             = false,
             context             = canvas.getContext('2d');
             context.lineWidth   = options.lineWidth   || 1;
             context.lineCap     = options.lineCap     || "round";
@@ -22,29 +23,44 @@
                 }
                 
                 this.clear();
+                this.update(_lines);
+            },
+
+            update: function(_lines)
+            {
                 if(_lines && _lines.length){
                     var lines_number = _lines.length;
                     for(var line = 0; line < lines_number; line++){
                         var points_number = _lines[line].length;
                         if(points_number){
-                            this.start({x: _lines[line][0], y: _lines[line][1]});
-                            for(var point = 2; point < points_number; point += 2){
-                                this.addPoint({x: _lines[line][point], y: _lines[line][point+1]});
+                            if(typeof _lines[line][0] == 'object'){
+                                this.start(_lines[line][0]);
+                                for(var point = 1; point < points_number; point++){
+                                    this.addPoint(_lines[line][point]);
+                                }
+                            } else {
+                                this.start({x: _lines[line][0], y: _lines[line][1]});
+                                for(var point = 2; point < points_number; point += 2){
+                                    this.addPoint({x: _lines[line][point], y: _lines[line][point+1]});
+                                }                     
                             }
+
                             this.close();
                         }
                     }
                 }
-                
-                lines = _lines;                
+                lines = _lines;
+                cleared = false;
+                blured  = false;
                 if(typeof callback == 'function') callback(this);
             },
             
             clear: function()
             {
                 lines = [];
-                context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
+                context.clearRect(0, 0, canvas.width, canvas.height);
                 blured = true;
+                cleared = true;
                 return true;
             },
             
@@ -86,6 +102,19 @@
             isBlured: function()
             {
                 return blured;
+            },
+
+            isCleared: function()
+            {
+                return cleared;
+            },
+
+            getStatus: function()
+            {
+                if(blured && cleared) return 'new';
+                else if(!blured && cleared) return 'clean';
+                else if(blured && !cleared) return 'updated';
+                else return '';
             },
 
             draw: function(img)
@@ -133,14 +162,24 @@
             var callback = {
                 ok: function(e){
                     console.log('The signature is signed');
-                    // TODO: Store the new lines into appropriatted signature
+                    // TODO: Store the new lines into appropriated signature
                     //       Must decide if there should be:
                     //         - adding additional lines to existed ones
                     //         - replacing existed lines by new ones
                     //         - removing all old lines (clean signature)
                     //       And refresh it
-                    if(ctx.isBlured()){
-                        signature.populate(ctx.getLines());
+                    switch(ctx.getStatus()){
+                        case 'new':
+                            signature.populate(ctx.getLines());
+                            break;
+                        case 'updated':
+                            signature.update(ctx.getLines());
+                            break;
+                        case 'clean':
+                            signature.clear();
+                            break;
+                        default:
+                            break;
                     }
 
                     popup.hide(e);
@@ -168,9 +207,9 @@
             var listener = {
                 getXY: function(e)
                 {
-                    var x, y;
-                    var offsety = canvas.offsetTop || 0;
-                    var offsetx = canvas.offsetLeft || 0;
+                    var x, y,
+                        offsety = canvas.offsetTop || 0,
+                        offsetx = canvas.offsetLeft || 0;
                     
                     if (e.changedTouches && e.changedTouches[0])
                     {
@@ -276,6 +315,8 @@
 
         hide: function(e)
         {
+            //document.body.removeEventListener('mouseup',  listener.stopCapture, false);
+            //document.body.removeEventListener('touchend', listener.stopCapture, false);
             $('div.popup_signature').remove();
         }
     };
