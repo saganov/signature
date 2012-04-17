@@ -337,8 +337,6 @@
                         .attr('width',  options.canvas.width)
                         .attr('height', options.canvas.height);
                     $this.append(canvas)
-                        .css('width',  size.width+'px')
-                        .css('height', size.height/2 +'px')
                         .addClass('signature')
                         .click(popup.show);
                     
@@ -353,8 +351,6 @@
                                                         });
                     options.context.populate(options.lines);
                           
-
-                    
                     $this.data('signature', options);
                     
                 });
