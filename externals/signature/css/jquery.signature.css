@@ -1,6 +1,8 @@
 .signature {border: 3px solid red;}
 .signature.signed {border-color: green;}
 
+.signature canvas {position: relative; top:-50%; left:0;}
+
 .popup_signature {
    border: 2px solid blue;
    border-radius: 3px;

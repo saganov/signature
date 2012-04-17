@@ -333,6 +333,7 @@
                     options = $.extend({}, def, $this.data('signature'), options);
                     var size = {width: options.canvas.width  / options.canvas.scale,
                                 height: options.canvas.height / options.canvas.scale};
+                    var top = (size.height/2 - size.height) / 2;
                     var canvas = $('<canvas />', {style:  'width:'+size.width+'px;height:'+size.height+'px;'})
                         .attr('width',  options.canvas.width)
                         .attr('height', options.canvas.height);
