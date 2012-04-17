@@ -150,8 +150,7 @@
                 .attr('width',  def.canvas.width)
                 .attr('height', def.canvas.height);
 
-           
-            var signature = $(e.target.parentNode).data('signature').context;
+            var signature = $(e.data.signature).data('signature').context;
             //grab the context from your destination canvas
             var ctx = signature_context(canvas[0], def.canvas);
             //call its drawImage() function passing it the source canvas directly
@@ -161,7 +160,6 @@
             // TODO: There has to be the way to reload this methods
             var callback = {
                 ok: function(e){
-                    console.log('The signature is signed');
                     // TODO: Store the new lines into appropriated signature
                     //       Must decide if there should be:
                     //         - adding additional lines to existed ones
@@ -170,12 +168,15 @@
                     //       And refresh it
                     switch(ctx.getStatus()){
                         case 'new':
+                            console.log('The signature is signed');
                             signature.populate(ctx.getLines());
                             break;
                         case 'updated':
+                            console.log('The signature is signed');
                             signature.update(ctx.getLines());
                             break;
                         case 'clean':
+                            console.log('The signature is clear');
                             signature.clear();
                             break;
                         default:
@@ -339,7 +340,7 @@
                         .attr('height', options.canvas.height);
                     $this.append(canvas)
                         .addClass('signature')
-                        .click(popup.show);
+                        .click({signature: $this}, popup.show);
                     
                     options.context = signature_context(canvas[0],
                                                         options.canvas,
