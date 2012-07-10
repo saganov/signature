@@ -80,8 +80,9 @@
      
      // API
      $signature.popup = {
+         options: def,
          show: show,
-         hide: hide             
+         hide: hide
      };
      
 }( window.$signature = window.$signature || {}, jQuery ));

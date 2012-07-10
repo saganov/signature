@@ -23,7 +23,6 @@
                         .click({signature: $this}, $signature.popup.show);
                     
                     options.context = $signature.context(canvas[0],
-                                                        options.canvas,
                                                         function(context){
                                                             if(context.isSigned()){
                                                                 $this.addClass('signed');

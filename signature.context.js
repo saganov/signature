@@ -1,17 +1,27 @@
 (function( $signature, $, undefined ) {
+     //Private Property     
+     var def = {
+         lineWidth:   1,
+         lineCap:     "round",
+         fillStyle:   "#fff",
+         strokeStyle: "#444"
+     },
+     _isSignatureEqual = function(first, second){
+         if (first && first.length != second.length){return false;}
+         return (JSON.stringify(first) == JSON.stringify(second));
+     };
+
 
      $signature.context = function (canvas, options, callback) {
-         //Private Property
-         var lines         = [],
-         blurred           = false,
-         cleared           = false,
-         
-         _isSignatureEqual = function(first, second){
-             if (first && first.length != second.length){return false;}
-             return (JSON.stringify(first) == JSON.stringify(second));
-         },
-         
-         _linesPush        = function(p){
+         if(typeof options == 'function')
+         {
+             callback = options;
+             options = {};
+         }
+         var lines  = [],
+         blurred    = false,
+         cleared    = false,
+         _linesPush = function(p){
              if(p){
                  lines[lines.length - 1].push(p);
              } else {
@@ -21,10 +31,10 @@
 
          ctx             = canvas.getContext('2d');
 
-         ctx.lineWidth   = options.lineWidth   || 1;
-         ctx.lineCap     = options.lineCap     || "round";
-         ctx.fillStyle   = options.fillStyle   || "#fff";
-         ctx.strokeStyle = options.strokeStyle || "#444";         
+         ctx.lineWidth   = options.lineWidth   || def.lineWidth;
+         ctx.lineCap     = options.lineCap     || def.lineCap;
+         ctx.fillStyle   = options.fillStyle   || def.fillStyle;
+         ctx.strokeStyle = options.strokeStyle || def.strokeStyle;
 
          // API
          return{
@@ -39,8 +49,7 @@
         
              update: function(_lines){
                  if(_lines && _lines.length){
-                     var lines_number = _lines.length;
-                     for(var line = 0; line < lines_number; line++){
+                     for(var line = 0, lines_number = _lines.length; line < lines_number; line++){
                          var points_number = _lines[line].length;
                          if(points_number){
                              if(typeof _lines[line][0] == 'object'){
@@ -124,6 +133,8 @@
              
          };
      };
+
+     $signature.context.options = def;
 
 }( window.$signature = window.$signature || {}, jQuery ));
 
