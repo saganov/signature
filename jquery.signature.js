@@ -20,7 +20,7 @@
                         .attr('height', options.canvas.height);
                     $this.append(canvas)
                         .addClass('signature')
-                        .click({signature: $this}, $signature.popup().show);
+                        .click({signature: $this}, $signature.popup.show);
                     
                     options.context = $signature.context(canvas[0],
                                                         options.canvas,
