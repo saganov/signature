@@ -11,11 +11,11 @@
      var show = function(e)
      {
          var container = $('<div />', {'class': 'popup_signature'})
-             .css('width',  def.width+'px')
-             .css('height', def.height+'px');
+             .css('width',  $signature.popup.options.width+'px')
+             .css('height', $signature.popup.options.height+'px');
          var canvas = $('<canvas />')
-             .attr('width',  def.width)
-             .attr('height', def.height);
+             .attr('width',  $signature.popup.options.width)
+             .attr('height', $signature.popup.options.height);
          
          var signature = e.data.signature.data('signature').context;
          //var signature = $signature.getContext(e.target)
