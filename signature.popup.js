@@ -18,8 +18,9 @@
              .attr('height', def.height);
          
          var signature = e.data.signature.data('signature').context;
+         //var signature = $signature.getContext(e.target)
          //grab the context from your destination canvas
-         var ctx = $signature.context(canvas[0], def);
+         var ctx = $signature.getContext(canvas[0], $signature.popup.options);
          //call its drawImage() function passing it the source canvas directly
          ctx.draw(e.target);
          //ctx.populate(signature.getLines());
